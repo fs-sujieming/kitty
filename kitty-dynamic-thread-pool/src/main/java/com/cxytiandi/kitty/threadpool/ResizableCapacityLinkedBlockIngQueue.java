@@ -260,8 +260,20 @@ public class ResizableCapacityLinkedBlockIngQueue<E> extends AbstractQueue<E>
         }
     }
 
+    /**
+     * 参考:com.rabbitmq.client.impl.VariableLinkedBlockingQueue
+     * Set a new capacity for the queue. Increasing the capacity can
+     * cause any waiting {@link #put(Object)} invocations to succeed if the new
+     * capacity is larger than the queue.
+     * @param capacity the new capacity for the queue
+     */
     public void setCapacity(int capacity) {
+        final int oldCapacity = this.capacity;
         this.capacity = capacity;
+        final int size = count.get();
+        if (capacity > size && size >= oldCapacity) {
+            signalNotFull();
+        }
     }
 
     // this doc comment is overridden to remove the reference to collections
